@@ -21,7 +21,7 @@ class PDFWorker {
 
   private constructor(private worker: Worker) {}
 
-  public async run(msg: any): Promise<any> {
+  public async run(msg: { data: Uint8Array; name: string }): Promise<any> {
     return new Promise((resolve, reject) => {
       this.running = true
 
@@ -44,7 +44,6 @@ class PDFWorker {
 
 class PDFManager {
   public async getPdfText(file: TFile): Promise<string> {
-
     // 1) Check if we can find by path & size
     const docByPath = await database.pdf.get({
       path: file.path,
