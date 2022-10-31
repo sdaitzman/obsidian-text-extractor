@@ -2,7 +2,6 @@ import type { TFile } from 'obsidian'
 import Tesseract, { createWorker } from 'tesseract.js'
 import { database } from './database'
 import { makeMD5 } from './utils'
-import sizeOf from 'buffer-image-size'
 
 const workerTimeout = 120_000
 
@@ -15,7 +14,7 @@ class OCRWorker {
       return free
     }
     const worker = new OCRWorker(createWorker({
-      cachePath: 'tesseract'
+      cachePath: 'tesseract',
     }))
     OCRWorker.pool.push(worker)
     return worker

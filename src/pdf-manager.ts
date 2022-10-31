@@ -67,6 +67,7 @@ class PDFManager {
     return new Promise(async (resolve, reject) => {
       try {
         const res = await worker.run({ data, name: file.basename })
+        console.log(res.data.text)
         const text = (res.data.text as string)
           // Replace \n with spaces
           .replace(/\n/g, ' ')

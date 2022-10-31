@@ -11,7 +11,7 @@ class PDFCache extends Dexie {
 >
 
   constructor() {
-    super('pdf/cache')
+    super('obsidian-text-extract/cache')
     this.version(2).stores({
       pdf: 'path, hash, size',
       images: 'path, hash, size',
