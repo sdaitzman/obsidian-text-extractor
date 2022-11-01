@@ -1,6 +1,7 @@
 import type { TFile } from 'obsidian'
 import Tesseract, { createWorker } from 'tesseract.js'
 import { database } from './database'
+import { getProcessQueue } from './globals'
 import { makeMD5 } from './utils'
 
 const workerTimeout = 120_000
@@ -62,7 +63,12 @@ class OCRWorker {
 }
 
 class OCRManager {
+  
   public async getImageText(file: TFile): Promise<string> {
+    return getProcessQueue()(this._getImageText, file)
+  }
+
+  private async _getImageText(file: TFile): Promise<string> {
     // 1) Check if we can find by path & size
     const docByPath = await database.images.get({
       path: file.path,

@@ -2,6 +2,7 @@ import type { TFile } from 'obsidian'
 import WebWorker from 'web-worker:./pdf-worker.ts'
 import { makeMD5 } from './utils'
 import { database } from './database'
+import { processQueue } from './globals'
 
 const workerTimeout = 120_000
 
@@ -43,7 +44,12 @@ class PDFWorker {
 }
 
 class PDFManager {
+
   public async getPdfText(file: TFile): Promise<string> {
+    return processQueue(this._getPdfText, file)
+  }
+
+  private async _getPdfText(file: TFile): Promise<string> {
     // 1) Check if we can find by path & size
     const docByPath = await database.pdf.get({
       path: file.path,

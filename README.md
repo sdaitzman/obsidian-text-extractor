@@ -1,0 +1,2 @@
+# Obsidian Text Extract Library
+

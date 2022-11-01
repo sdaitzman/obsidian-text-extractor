@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "dexie": "^3.2.2",
+    "p-limit": "^4.0.0",
     "pure-md5": "^0.1.14",
     "tesseract.js": "^3.0.3"
   }
