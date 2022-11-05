@@ -44,7 +44,6 @@ class PDFWorker {
 }
 
 class PDFManager {
-
   public async getPdfText(file: TFile): Promise<string> {
     return processQueue(this._getPdfText, file)
   }
@@ -73,7 +72,6 @@ class PDFManager {
     return new Promise(async (resolve, reject) => {
       try {
         const res = await worker.run({ data, name: file.basename })
-        console.log(res.data.text)
         const text = (res.data.text as string)
           // Replace \n with spaces
           .replace(/\n/g, ' ')

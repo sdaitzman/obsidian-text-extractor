@@ -21,7 +21,7 @@
 import { pdfManager } from './pdf-manager'
 import { ocrManager } from './ocr-manager'
 
-const getPdfText = pdfManager.getPdfText
-const getImageText = ocrManager.getImageText
+const getPdfText = pdfManager.getPdfText.bind(pdfManager)
+const getImageText = ocrManager.getImageText.bind(ocrManager)
 
 export { getPdfText, getImageText }
