@@ -2,7 +2,6 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import { base64 } from 'rollup-plugin-base64'
 import typescript from 'rollup-plugin-typescript2'
-import copy from 'rollup-plugin-copy'
 import { terser } from 'rollup-plugin-terser'
 import webWorkerLoader from 'rollup-plugin-web-worker-loader'
 import del from 'rollup-plugin-delete'
@@ -34,11 +33,6 @@ export default {
     typescript(),
     commonjs(),
     base64({ include: '**/*.wasm' }),
-    copy({
-      targets: [
-        { src: 'package.json', dest: 'dist' },
-      ],
-    }),
     webWorkerLoader({
       inline: true,
       forceInline: true,
