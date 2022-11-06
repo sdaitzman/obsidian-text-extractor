@@ -16,6 +16,11 @@ class PDFCache extends Dexie {
       pdf: 'path, hash, size',
       images: 'path, hash, size',
     })
+    this.clearOldDatabases()
+  }
+
+  clearOldDatabases() {
+    indexedDB.deleteDatabase('obsidian-text-extract/cache')
   }
 }
 

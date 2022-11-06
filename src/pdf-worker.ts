@@ -10,7 +10,7 @@ onmessage = async evt => {
     const text = plugin.extract_pdf_text(evt.data.data as Uint8Array)
     self.postMessage({ text })
   } catch (e) {
-    console.warn('Omnisearch - Could not extract text from ' + evt.data.name)
+    console.info('Omnisearch - Could not extract text from ' + evt.data.name)
     self.postMessage({ text: '' })
   }
 }
