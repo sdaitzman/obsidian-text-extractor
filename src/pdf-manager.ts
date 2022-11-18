@@ -1,4 +1,4 @@
-import type { TFile } from 'obsidian'
+import { Platform, TFile } from 'obsidian'
 import WebWorker from 'web-worker:./pdf-worker.ts'
 import { makeMD5 } from './utils'
 import { database } from './database'
@@ -45,6 +45,9 @@ class PDFWorker {
 
 class PDFManager {
   public async getPdfText(file: TFile): Promise<string> {
+    if (Platform.isMobile) {
+      return ''
+    }
     return processQueue(this._getPdfText, file)
   }
 

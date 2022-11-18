@@ -1,4 +1,4 @@
-import type { TFile } from 'obsidian'
+import { Platform, TFile } from 'obsidian'
 import Tesseract, { createWorker } from 'tesseract.js'
 import { database } from './database'
 import { processQueue } from './globals'
@@ -65,6 +65,9 @@ class OCRWorker {
 class OCRManager {
   
   public async getImageText(file: TFile): Promise<string> {
+    if (Platform.isMobile) {
+      return ''
+    }
     return processQueue(this._getImageText, file)
   }
 
