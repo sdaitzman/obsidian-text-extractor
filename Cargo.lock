@@ -235,7 +235,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "obsidian-search"
+name = "obsidian-text-extract"
 version = "0.1.0"
 dependencies = [
  "js-sys",
