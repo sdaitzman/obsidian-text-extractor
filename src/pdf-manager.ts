@@ -2,7 +2,7 @@ import { Platform, TFile } from 'obsidian'
 import WebWorker from 'web-worker:./pdf-worker.ts'
 import { makeMD5 } from './utils'
 import { database } from './database'
-import { processQueue } from './globals'
+import { libVersion, processQueue } from './globals'
 
 const workerTimeout = 120_000
 
@@ -84,7 +84,13 @@ class PDFManager {
 
         // Add it to the cache
         database.pdf
-          .add({ hash, text, path: file.path, size: file.stat.size })
+          .add({
+            hash,
+            text,
+            path: file.path,
+            size: file.stat.size,
+            libVersion,
+          })
           .then(() => {
             resolve(text)
           })
@@ -92,7 +98,13 @@ class PDFManager {
         // In case of error (unreadable PDF or timeout) just add
         // an empty string to the cache
         database.pdf
-          .add({ hash, text: '', path: file.path, size: file.stat.size })
+          .add({
+            hash,
+            text: '',
+            path: file.path,
+            size: file.stat.size,
+            libVersion,
+          })
           .then(() => {
             resolve('')
           })

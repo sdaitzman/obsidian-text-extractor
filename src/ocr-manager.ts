@@ -1,7 +1,7 @@
 import { Platform, TFile } from 'obsidian'
 import Tesseract, { createWorker } from 'tesseract.js'
 import { database } from './database'
-import { processQueue } from './globals'
+import { libVersion, processQueue } from './globals'
 import { makeMD5 } from './utils'
 
 const workerTimeout = 120_000
@@ -14,9 +14,11 @@ class OCRWorker {
     if (free) {
       return free
     }
-    const worker = new OCRWorker(createWorker({
-      cachePath: 'tesseract',
-    }))
+    const worker = new OCRWorker(
+      createWorker({
+        cachePath: 'tesseract',
+      })
+    )
     OCRWorker.pool.push(worker)
     return worker
   }
@@ -54,8 +56,7 @@ class OCRWorker {
       } catch (e) {
         console.error('Omnisearch - OCR Worker timeout for ' + name)
         resolve({ text: '' })
-      }
-      finally {
+      } finally {
         this.running = false
       }
     })
@@ -63,7 +64,6 @@ class OCRWorker {
 }
 
 class OCRManager {
-  
   public async getImageText(file: TFile): Promise<string> {
     if (Platform.isMobile) {
       return ''
@@ -107,7 +107,13 @@ class OCRManager {
 
         // Add it to the cache
         database.images
-          .add({ hash, text, path: file.path, size: file.stat.size })
+          .add({
+            hash,
+            text,
+            path: file.path,
+            size: file.stat.size,
+            libVersion,
+          })
           .then(() => {
             resolve(text)
           })
@@ -115,7 +121,13 @@ class OCRManager {
         // In case of error (unreadable PDF or timeout) just add
         // an empty string to the cache
         database.images
-          .add({ hash, text: '', path: file.path, size: file.stat.size })
+          .add({
+            hash,
+            text: '',
+            path: file.path,
+            size: file.stat.size,
+            libVersion,
+          })
           .then(() => {
             resolve('')
           })

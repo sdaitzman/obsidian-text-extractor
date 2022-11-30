@@ -252,7 +252,7 @@ checksum = "e82dad04139b71a90c080c8463fe0dc7902db5192d939bd0950f074d014339e1"
 [[package]]
 name = "pdf-extract"
 version = "0.6.5-alpha.0"
-source = "git+https://github.com/scambier/pdf-extract#8f01969a0bb49bd71195dd4fd5c87a4a0b5f4b48"
+source = "git+https://github.com/jrmuizel/pdf-extract#ff512aee0772be44e3ba8e2dd4847ceaaa3bd37b"
 dependencies = [
  "adobe-cmap-parser",
  "encoding",

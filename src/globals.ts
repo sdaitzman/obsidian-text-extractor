@@ -1,5 +1,9 @@
 import pLimit, { LimitFunction } from 'p-limit'
 import { Platform } from 'obsidian'
+// @ts-ignore
+import * as data from '../package.json';
+
+export const libVersion = data.version
 
 const cpuCount = Platform.isMobileApp ? 1 : require('os').cpus().length
 let backgroundProcesses = Math.max(1, Math.floor(cpuCount * 0.7))
