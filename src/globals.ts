@@ -15,7 +15,7 @@ const sym = Symbol.for('be.scambier.obsidian-text-extract')
 // @ts-ignore
 if (!globalThis[sym]) {
   console.info(
-    'Text Extract - Number of available workers: ' + backgroundProcesses
+    'Text Extract - Number of available workers: ' + backgroundProcesses,
   )
   // @ts-ignore
   globalThis[sym] = pLimit(backgroundProcesses)
@@ -23,3 +23,4 @@ if (!globalThis[sym]) {
 
 // @ts-ignore
 export const processQueue: LimitFunction = globalThis[sym]
+

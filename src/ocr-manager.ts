@@ -2,12 +2,19 @@ import { Platform, TFile } from 'obsidian'
 import Tesseract, { createWorker } from 'tesseract.js'
 import { database } from './database'
 import { libVersion, processQueue } from './globals'
+import type { ocrLangs } from './ocr-langs'
 import { makeMD5 } from './utils'
+
+type OcrOptions = { langs: Array<typeof ocrLangs[number]> }
 
 const workerTimeout = 120_000
 
 class OCRWorker {
   private static pool: OCRWorker[] = []
+  private running = false
+  private ready = false
+
+  private constructor(private worker: Tesseract.Worker) {}
 
   static getWorker(): OCRWorker {
     const free = OCRWorker.pool.find(w => !w.running && w.ready)
@@ -17,28 +24,24 @@ class OCRWorker {
     const worker = new OCRWorker(
       createWorker({
         cachePath: 'tesseract',
-      })
+      }),
     )
     OCRWorker.pool.push(worker)
     return worker
   }
 
-  private running = false
-  private ready = false
-
-  private constructor(private worker: Tesseract.Worker) {}
-
   public async run(msg: {
     imageData: Buffer
     name: string
+    options: OcrOptions
   }): Promise<{ text: string }> {
     return new Promise(async (resolve, reject) => {
       this.running = true
 
       if (!this.ready) {
         await this.worker.load()
-        await this.worker.loadLanguage('eng')
-        await this.worker.initialize('eng')
+        await this.worker.loadLanguage(msg.options.langs.join('+'))
+        await this.worker.initialize(msg.options.langs[0])
         this.ready = true
       }
 
@@ -64,14 +67,25 @@ class OCRWorker {
 }
 
 class OCRManager {
-  public async getImageText(file: TFile): Promise<string> {
+  /**
+   * Extract text from an image file.
+   * @param file
+   * @param options - An array of languages to try. If not provided, the default is English
+   */
+  public async getImageText(
+    file: TFile,
+    options: OcrOptions = { langs: ['eng'] },
+  ): Promise<string> {
     if (Platform.isMobile) {
       return ''
     }
-    return processQueue(this._getImageText, file)
+    return processQueue(this._getImageText, file, options)
   }
 
-  private async _getImageText(file: TFile): Promise<string> {
+  private async _getImageText(
+    file: TFile,
+    options: OcrOptions,
+  ): Promise<string> {
     // 1) Check if we can find by path & size
     const docByPath = await database.images.get({
       path: file.path,
@@ -90,13 +104,14 @@ class OCRManager {
       return docByHash.text
     }
 
-    // 3) The PDF is not cached, extract it
+    // 3) The image is not cached, extract it
     const worker = OCRWorker.getWorker()
     return new Promise(async (resolve, reject) => {
       try {
         const res = await worker.run({
           imageData: Buffer.from(data.buffer),
           name: file.basename,
+          options,
         })
         const text = (res.text as string)
           // Replace \n with spaces
