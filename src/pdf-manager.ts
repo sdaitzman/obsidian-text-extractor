@@ -28,7 +28,7 @@ class PDFWorker {
 
       const timeout = setTimeout(() => {
         this.worker.terminate()
-        console.warn('Omnisearch - Worker timeout')
+        console.warn('Obsidian-text-extract - Worker timeout')
         reject('timeout')
         this.running = false
       }, workerTimeout)

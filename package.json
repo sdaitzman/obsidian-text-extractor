@@ -6,6 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "dev": "wasm-pack build --target web && rollup -c -w",
     "build": "wasm-pack build --target web && rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "pnpm run build"

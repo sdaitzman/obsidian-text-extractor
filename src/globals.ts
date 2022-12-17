@@ -1,7 +1,7 @@
 import pLimit, { LimitFunction } from 'p-limit'
 import { Platform } from 'obsidian'
 // @ts-ignore
-import * as data from '../package.json';
+import * as data from '../package.json'
 
 export const libVersion = data.version
 
@@ -15,7 +15,8 @@ const sym = Symbol.for('be.scambier.obsidian-text-extract')
 // @ts-ignore
 if (!globalThis[sym]) {
   console.info(
-    'Text Extract - Number of available workers: ' + backgroundProcesses,
+    'Obsidian-text-extract - Number of available workers: ' +
+      backgroundProcesses
   )
   // @ts-ignore
   globalThis[sym] = pLimit(backgroundProcesses)
@@ -23,4 +24,3 @@ if (!globalThis[sym]) {
 
 // @ts-ignore
 export const processQueue: LimitFunction = globalThis[sym]
-

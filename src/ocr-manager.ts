@@ -24,7 +24,7 @@ class OCRWorker {
     const worker = new OCRWorker(
       createWorker({
         cachePath: 'tesseract',
-      }),
+      })
     )
     OCRWorker.pool.push(worker)
     return worker
@@ -34,20 +34,21 @@ class OCRWorker {
     imageData: Buffer
     name: string
     options: OcrOptions
-  }): Promise<{ text: string }> {
+  }): Promise<{ text: string; langs: string }> {
     return new Promise(async (resolve, reject) => {
       this.running = true
+      const langs = msg.options.langs.join('+')
 
       if (!this.ready) {
         await this.worker.load()
-        await this.worker.loadLanguage(msg.options.langs.join('+'))
+        await this.worker.loadLanguage(langs)
         await this.worker.initialize(msg.options.langs[0])
         this.ready = true
       }
 
       const timeout = setTimeout(() => {
         this.worker.terminate()
-        console.warn('Omnisearch - Worker timeout')
+        console.warn('Obsidian-text-extract - Worker timeout')
         reject('timeout')
         this.running = false
       }, workerTimeout)
@@ -55,10 +56,12 @@ class OCRWorker {
       try {
         const { data } = await this.worker.recognize(msg.imageData)
         clearTimeout(timeout)
-        return resolve(data)
+        return resolve({ text: data.text, langs })
       } catch (e) {
-        console.error('Omnisearch - OCR Worker timeout for ' + name)
-        resolve({ text: '' })
+        console.error(
+          'Obsidian-text-extract - OCR Worker timeout for ' + msg.name
+        )
+        resolve({ text: '', langs })
       } finally {
         this.running = false
       }
@@ -74,7 +77,7 @@ class OCRManager {
    */
   public async getImageText(
     file: TFile,
-    options: OcrOptions = { langs: ['eng'] },
+    options: OcrOptions = { langs: ['eng'] }
   ): Promise<string> {
     if (Platform.isMobile) {
       return ''
@@ -84,12 +87,14 @@ class OCRManager {
 
   private async _getImageText(
     file: TFile,
-    options: OcrOptions,
+    options: OcrOptions
   ): Promise<string> {
-    // 1) Check if we can find by path & size
+    const langs = options.langs.join('+')
+    // 1) Check if we can find by path & size. This is the fastest way.
     const docByPath = await database.images.get({
       path: file.path,
       size: file.stat.size,
+      langs,
     })
 
     if (docByPath) {
@@ -99,7 +104,7 @@ class OCRManager {
     // 2) Check by hash
     const data = new Uint8ClampedArray(await app.vault.readBinary(file))
     const hash = makeMD5(data)
-    const docByHash = await database.images.get(hash)
+    const docByHash = await database.images.get({ hash, langs })
     if (docByHash) {
       return docByHash.text
     }
@@ -113,7 +118,8 @@ class OCRManager {
           name: file.basename,
           options,
         })
-        const text = (res.text as string)
+        const langs = res.langs
+        const text = res.text
           // Replace \n with spaces
           .replace(/\n/g, ' ')
           // Trim multiple spaces
@@ -122,9 +128,10 @@ class OCRManager {
 
         // Add it to the cache
         database.images
-          .add({
+          .put({
             hash,
             text,
+            langs,
             path: file.path,
             size: file.stat.size,
             libVersion,
@@ -139,6 +146,7 @@ class OCRManager {
           .add({
             hash,
             text: '',
+            langs: '',
             path: file.path,
             size: file.stat.size,
             libVersion,
